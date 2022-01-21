@@ -1,8 +1,8 @@
 <template>
   <div class="counter-container">
-    <button @click="decrease">Decrease</button>
+    <button id="decrease" @click="decrease">Decrease</button>
     <span>{{ count }}k</span>
-    <button @click="increase">Increase</button>
+    <button id="increase" @click="increase">Increase</button>
   </div>
 </template>
 
@@ -16,6 +16,7 @@ export default {
   },
   methods: {
     decrease() {
+      //actions'ın dispatch fonksiyonu ilgili fonksiyonları çağırır, o da mutationsı tetikliyor.
       this.$store.dispatch('decrement')
     },
     increase() {

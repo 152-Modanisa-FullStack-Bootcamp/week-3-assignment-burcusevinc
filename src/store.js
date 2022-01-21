@@ -11,18 +11,27 @@ export const getters = {
   getCount: state => state.count
 }
 
-export const mutations = {
-  addToCount(state, nCount) {
-    state.count += nCount
+//store'un değiştirilmesi:
+//state'i değiştirebiliyor.
+//payload -> kullanıcıdan alınan değer
+
+export const mutations = { //commit, statei alır, payload -> obje, array olabilir, kullanıldığı yerde verilir.
+  addToCount(state, nCount) { //state -> count
+    state.count += nCount //metodu çağırınca yapılacak olan işlem
   },
 }
 
-export const actions = {
+//async call yapılabilir, await edilebilir.
+//amaç: herhangibir mutations'ı çağırmak
+//kullanıcı bir şey yapmış gibi 
+//action tanımlayıp onun mutation çağırması sağlanır.
+export const actions = { //dispatch
+  //context içindeki commitleri destructuring ile alır.
   increment(context, payload) {
     context.commit('addToCount', 1)
   },
   decrement(context, payload) {
-    context.commit('addToCount', -1)
+    context.commit('addToCount', -1) //fonksiyonu çağırır, payload = -1
   }
 }
 
@@ -31,5 +40,5 @@ export default new Vuex.Store({
   getters,
   mutations,
   actions,
-  modules: {}
+  modules: {} //birden fazla store tanımlamaya yarar.
 })
