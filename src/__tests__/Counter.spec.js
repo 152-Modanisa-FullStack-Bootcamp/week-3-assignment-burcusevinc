@@ -1,37 +1,18 @@
-import {
-    createLocalVue,
-    shallowMount
-} from '@vue/test-utils'
+import { createLocalVue, mount, shallowMount } from '@vue/test-utils'
 import Counter from "@/Counter"
 import Vuex from "vuex";
-import Vue from 'vue';
-import {
-    actions,
-    state,
-    getters,
-    mutations
-} from "@/store";
+import { actions, state, getters, mutations } from "@/store";
 
+//mounts the component + create local vue and store.
+function mountComponent() {
+    const localVue = createLocalVue()
+    localVue.use(Vuex)
 
-function mountComponent() { //kod tekrarını önlemek için fonksiyon oluşturuldu.
-    //component, store kullandığı için options verilmeli.
-    //createLocalVue import edilmeli.
-    const localVue = createLocalVue() //localVue yaratılır.
-    localVue.use(Vuex) //Vuex import edilmelii
-    /* 
-    1 - mount yerine shallowMount edilir, sebebi; Counter'ın içindeki childlara bakmamıza ihtiyaç yoktur.
-    Bu casede sadece componentin render edilip edilmediğine bakıyoruz. shallowMount, mountdan daha hızlı çalışır.
-    2 - Counter componenti import edilmeli.
-    3 - shallowMount import edilmeli.
-    */
     return shallowMount(Counter, {
         localVue,
         store: new Vuex.Store({
             state, //import edilmeliler
-            actions: {
-                decrement: actions.decrement,
-                increment: actions.increment
-            },
+            actions,
             getters,
             mutations
         })
@@ -39,84 +20,78 @@ function mountComponent() { //kod tekrarını önlemek için fonksiyon oluşturu
 }
 
 describe("Counter.vue", () => {
-    //test ortamının oluşup oluşmadığını kontrol eder.
+    //0. sanity check
     it('sanity check for test environment', () => {
         return
     })
+    // Exists Check
     describe("exists check", () => {
-
-        //Counter.vue'nun component'i başarılı bir şekilde render edip etmediğini test eder.
+        //1. component exist check
         it("should component exists", () => {
-            const wrapper = mountComponent() //wrapper oluşturulur.
-
-            //expect ->
-            //exists() metodu oluşturduğumuz wrapperı render ederken bir problem olup olmadığına bakar.(true-false döner.)
-            //toBeTruthy ->
+            const wrapper = mountComponent()
             expect(wrapper.exists()).toBeTruthy()
         })
-
+        //2. decrease button check
         it("should render decrease button", () => {
             const wrapper = mountComponent()
-            const decrease = wrapper.find('#decrease') //id selectorı decrease olan butonu bul.
-            expect(decrease.exists()).toBeTruthy() //wrapperı render ederken problem olup olmadığına bak.
-            expect(decrease.text()).toEqual("Decrease") //Butonun HTML text'ini kontrol eder.
+            const decrease = wrapper.find('#decrease')
+            expect(decrease.exists()).toBeTruthy()
+            expect(decrease.text()).toEqual("Decrease")
         })
-
+        //3. increase button check
         it("should render increase button", () => {
             const wrapper = mountComponent()
-            const increase = wrapper.find('#increase') //id selectorı increase olan butonu bul.
-            expect(increase.exists()).toBeTruthy() //wrapperı render ederken problem olup olmadığına bak.
+            const increase = wrapper.find('#increase')
+            expect(increase.exists()).toBeTruthy()
             expect(increase.text()).toEqual("Increase")
         })
-
     })
 
-    describe("check buttons functionality", () => {
-        //butona basınca sayınının azalıp azalmadığını kontrol eder.
-        it("check decrease button functionality", async () => {
+    describe("buttons functionality checks", () => {
+        //4. decrease button functionality check
+        it("should decrease button work correctly", async () => {
             const wrapper = mountComponent()
 
             wrapper.find('#decrease').trigger('click')
             await wrapper.vm.$nextTick() //DOM'un update olması beklenir.
 
             let expectedCount = wrapper.vm.$store.state.count
+
             expect(wrapper.find('span').text()).toEqual(expectedCount + "k")
             console.log(wrapper.find('span').text())
-
         })
 
-         it("check increase button functionality", async() => { 
-             //butona basınca sayınının artıp artmadığını kontrol eder.
+        //5. increase button functionality check
+        it("should increase button work correctly", async () => {
             const wrapper = mountComponent()
 
             wrapper.find('#increase').trigger('click')
             await wrapper.vm.$nextTick() //DOM'un update olması beklenir.
 
             let expectedCount = wrapper.vm.$store.state.count
-            expect(wrapper.find('span').text()).toEqual(expectedCount + "k")
-            //console.log(wrapper.find('span').text())
-         })
 
-         it("check increase and decrease functionality together", async () => {
+            expect(wrapper.find('span').text()).toEqual(expectedCount + "k")
+        })
+
+        //6. 2 increase + 1 decrease functionality check
+        it("check increase and decrease functionality together", () => {
             const wrapper = mountComponent()
 
             wrapper.find('#increase').trigger('click')
-            await wrapper.vm.$nextTick()
-
+            wrapper.find('#increase').trigger('click')
             wrapper.find('#decrease').trigger('click')
-            await wrapper.vm.$nextTick()
 
             let expectedCount = wrapper.vm.$store.state.count
+
+            //expect(expectedCount).toEqual(1);
             expect(wrapper.find('span').text()).toEqual(expectedCount + "k")
 
         })
 
+        //7. count text show check
+        it("should count text show check", () => {
+            const wrapper = mountComponent()
+            expect(wrapper.find("span").text()).toEqual(`${state.count}k`)
+        })
     })
-    it("should count text show check", () => {
-        const wrapper = mountComponent()
-        //const text = wrapper.find('span').element.textContent //spanin içindeki texti çeker.
-        //expect(text).toEqual(`${state.count}k`)
-        expect(wrapper.find("span").text()).toEqual(`${state.count}k`)
-    })
-
 })

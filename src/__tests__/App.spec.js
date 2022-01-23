@@ -1,21 +1,87 @@
-import {
-    createLocalVue,
-    mount
-} from "@vue/test-utils"
+import { createLocalVue, mount } from "@vue/test-utils"
 import App from "@/App"
 import Vuex from "vuex";
-import {
-    getters,
-    state,
-    mutations,
-    actions
-} from "@/store";
+import { getters, state, mutations, actions } from "@/store";
 
+describe("App.vue", () => {
+    describe("Exist tests", () => {
+        //0.sanity check
+        it('sanity test', () => {
+            return
+        })
+        //0.sanity check
+        it("should component exists", () => {
+            const wrapper = mountComponent()
+            expect(wrapper.exists()).toBeTruthy()
+        })
+        //1.h1 exist check
+        it("should h1 title exists", () => {
+            const wrapper = mountComponent()
+            const title = wrapper.find("#title")
+            expect(title.exists()).toBeTruthy()
+        }) //2. h1 text check
+        it("should h1 title text exist and match", () => {
+            const wrapper = mountComponent()
+            expect(wrapper.find("#title").text()).toEqual("Daily Corona Cases in Turkey")
+        })
+    })
+
+    describe('check notificationArea', () => {
+        //3.notificationArea class check based on getCount Value
+        it("should notificationArea class work correctly", async () => {
+            let wrapper = mountComponent()
+
+            state.count = 0
+            const safeClass = wrapper.find(".notificationArea")
+            expect(safeClass.classes()).toContain("safe")
+
+            state.count = 6
+            //DOM'un güncellenmesi bekletilir.DOM güncellenmezse, "safe" olarak kalacaktı.
+            await wrapper.vm.$nextTick() 
+            const NormalClass = wrapper.find(".notificationArea")
+            expect(NormalClass.classes()).toContain("normal")
+
+            state.count = 11
+            await wrapper.vm.$nextTick()
+            const DangerClass = wrapper.find(".notificationArea")
+            expect(DangerClass.classes()).toContain("danger")
+        })
+
+        //4.notificationArea text message check
+        it("should text message show correctly", async () => {
+            let wrapper = mountComponent()
+            let countVar = 0
+            let localThis =  {
+                $store: {
+                    state: {
+                        count: countVar
+                    }
+                }
+            }
+            let message = App.computed.message.call(localThis)
+            wrapper.vm.$store.state.count = countVar      
+            await wrapper.vm.$nextTick()
+            expect(wrapper.find(".notificationArea").text()).toEqual(`So safe. Case count is ${countVar}k`)
+
+            countVar = 6
+            wrapper.vm.$store.state.count = countVar      
+            await wrapper.vm.$nextTick()
+            expect(wrapper.find(".notificationArea").text()).toEqual(`Life is normal. Case count is ${countVar}k`)
+
+            countVar = 11
+            wrapper.vm.$store.state.count = countVar      
+            await wrapper.vm.$nextTick()
+            expect(wrapper.find(".notificationArea").text()).toEqual(`Danger!!! Case count is ${countVar}k`)
+        })
+    })
+})
+
+//mounts the component + create local vue and store.
 function mountComponent() {
-    const localVue = createLocalVue() //App'in kopyasını alır.
-    localVue.use(Vuex) //plugin
+    const localVue = createLocalVue()
+    localVue.use(Vuex)
 
-    return mount(App, { //App componentini alır.
+    return mount(App, {
         localVue,
         store: new Vuex.Store({
             state,
@@ -25,81 +91,3 @@ function mountComponent() {
         })
     });
 }
-
-function createLocalThis(counter) {
-    return {
-        $store: {
-            state: {
-                count: counter
-            }
-        }
-    }
-}
-
-describe("App.vue", () => {
-    describe("Exist tests", () => {
-        it('sanity test', () => {
-            return
-        })
-        it("should component exists", () => {
-            const wrapper = mountComponent()
-            expect(wrapper.exists()).toBeTruthy()
-        })
-        it("should h1 title exists", () => {
-            const wrapper = mountComponent()
-            const title = wrapper.find("#title")
-            expect(title.exists()).toBeTruthy()
-        })
-        it("should h1 title text exist and match", () => {
-            const wrapper = mountComponent()
-            expect(wrapper.find("#title").text()).toEqual("Daily Corona Cases in Turkey")
-        })
-
-    })
-
-    describe('check notificationArea', () => {
-        it("should notificationArea class check", async () => {
-            let wrapper = mountComponent() 
-            state.count = 0
-
-            const safeClass = wrapper.find(".notificationArea") //classı notificationArea olan elementi alır.
-            expect(safeClass.classes()).toContain("safe") //state count'ın değerine göre, notificationArea classının içinden "safe" classını döndü.
-            //console.log(safeClass)
-            //console.log(safeClass.classes())
-
-            state.count = 6 
-            await wrapper.vm.$nextTick() //DOM'un güncellenmesi bekletilir.
-            //DOM güncellenmezse, "safe" olarak kalabilir.
-
-            //wrapper = mountComponent() //count 6 ile App componentini tekrar kaldırır.
-            const NormalClass = wrapper.find(".notificationArea")
-            expect(NormalClass.classes()).toContain("normal")
-
-            state.count = 11
-            await wrapper.vm.$nextTick()
-
-            //wrapper = mountComponent() //count 6 ile App componentini tekrar kaldırır.
-            const DangerClass = wrapper.find(".notificationArea")
-            expect(DangerClass.classes()).toContain("danger")
-
-        })
-
-        it("should notificationArea text message check", () => {
-            let count = 0 
-            let localThis = createLocalThis(count) //createLocalThis fonksiyonu kullanıldı.
-            let message = App.computed.message.call(localThis) //App.computed.message'ın içeriğini oluşturulan localThis ile çağırır.
-            expect(message).toEqual(`So safe. Case count is ${count}k`) //message'ın içerğinin verilen string ile eşit olmasını kontrol ediyor.
-
-            count = 6
-            localThis = createLocalThis(count)
-            message = App.computed.message.call(localThis)
-            expect(message).toEqual(`Life is normal. Case count is ${count}k`)
-
-            count = 11
-            localThis = createLocalThis(count)
-            message = App.computed.message.call(localThis)
-            expect(message).toEqual(`Danger!!! Case count is ${count}k`)
-        })
-
-    })
-})

@@ -16,7 +16,6 @@ export default {
   },
   methods: {
     decrease() {
-      //actions'ın dispatch fonksiyonu ilgili fonksiyonları çağırır, o da mutationsı tetikliyor.
       this.$store.dispatch('decrement')
     },
     increase() {
