@@ -50,36 +50,61 @@ describe("Counter.vue", () => {
     describe("buttons functionality checks", () => {
         //4. decrease button functionality check
         it("should decrease button work correctly", async () => {
-            const wrapper = mountComponent()
+            /*const wrapper = mountComponent()
 
             wrapper.find('#decrease').trigger('click')
             await wrapper.vm.$nextTick() //DOM'un update olması beklenir.
 
-            let expectedCount = wrapper.vm.$store.state.count
+            let expectedCount = wrapper.vm.$store.state.count 
 
             expect(wrapper.find('span').text()).toEqual(expectedCount + "k")
-            console.log(wrapper.find('span').text())
+            console.log(wrapper.find('span').text())*/
+
+            const dispatchMock = jest.fn()
+            const wrapper = mount(Counter, {
+                mocks: {
+                    $store: {
+                        state,
+                        dispatch: dispatchMock
+                    }
+                }
+            })
+            wrapper.find('#decrease').trigger('click')
+            expect(dispatchMock).toHaveBeenCalledWith('decrement')
         })
 
         //5. increase button functionality check
         it("should increase button work correctly", async () => {
-            const wrapper = mountComponent()
+            /*const wrapper = mountComponent()
 
             wrapper.find('#increase').trigger('click')
             await wrapper.vm.$nextTick() //DOM'un update olması beklenir.
 
             let expectedCount = wrapper.vm.$store.state.count
 
-            expect(wrapper.find('span').text()).toEqual(expectedCount + "k")
+            expect(wrapper.find('span').text()).toEqual(expectedCount + "k")*/
+
+            const dispatchMock = jest.fn()
+            const wrapper = mount(Counter, {
+                mocks: {
+                    $store: {
+                        state,
+                        dispatch: dispatchMock
+                    }
+                }
+            })
+            wrapper.find('#increase').trigger('click')
+            expect(dispatchMock).toHaveBeenCalledWith('increment')
         })
 
         //6. 2 increase + 1 decrease functionality check
-        it("check increase and decrease functionality together", () => {
+        it("check increase and decrease functionality together", async() => {
             const wrapper = mountComponent()
 
             wrapper.find('#increase').trigger('click')
             wrapper.find('#increase').trigger('click')
             wrapper.find('#decrease').trigger('click')
+            await wrapper.vm.$nextTick()
 
             let expectedCount = wrapper.vm.$store.state.count
 
