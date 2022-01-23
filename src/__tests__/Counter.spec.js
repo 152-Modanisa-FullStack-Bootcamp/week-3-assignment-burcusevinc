@@ -11,7 +11,7 @@ function mountComponent() {
     return shallowMount(Counter, {
         localVue,
         store: new Vuex.Store({
-            state, //import edilmeliler
+            state : JSON.parse(JSON.stringify(state)), //import edilmeliler
             actions,
             getters,
             mutations
