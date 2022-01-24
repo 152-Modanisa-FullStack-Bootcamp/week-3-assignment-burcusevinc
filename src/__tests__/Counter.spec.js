@@ -35,14 +35,14 @@ describe("Counter.vue", () => {
         //2. decrease button exist and text check
         it("should render decrease button", () => {
             const wrapper = mountComponent()
-            const decrease = wrapper.find('#decrease') //find the decrease button
+            const decrease = wrapper.findAll('button').at(0) //find the decrease button
             expect(decrease.exists()).toBeTruthy() //exist
             expect(decrease.text()).toEqual("Decrease") // button element's should be equal to "Decrease"
         })
         //3. increase button exist and text check
         it("should render increase button", () => {
             const wrapper = mountComponent()
-            const increase = wrapper.find('#increase') //find the increase button
+            const increase = wrapper.findAll('button').at(1) //find the increase button
             expect(increase.exists()).toBeTruthy() //exist
             expect(increase.text()).toEqual("Increase") // button element's should be equal to "Increase"
         })
@@ -53,7 +53,7 @@ describe("Counter.vue", () => {
         it("should decrease button work correctly", async () => {
             //It is the another solution:
             /*const wrapper = mountComponent()
-            wrapper.find('#decrease').trigger('click')
+            wrapper.findAll(button).(0).trigger('click')
             await wrapper.vm.$nextTick() //DOM'un update olması beklenir.
             let expectedCount = wrapper.vm.$store.state.count 
             expect(wrapper.find('span').text()).toEqual(expectedCount + "k")
@@ -68,7 +68,7 @@ describe("Counter.vue", () => {
                     }
                 }
             })
-            wrapper.find('#decrease').trigger('click') //trigger decrease button
+            wrapper.findAll('button').at(0).trigger('click') //trigger decrease button
             expect(dispatchMock).toHaveBeenCalledWith('decrement') //Called the decrement function on the Actions object
         })
 
@@ -90,7 +90,7 @@ describe("Counter.vue", () => {
                     }
                 }
             })
-            wrapper.find('#increase').trigger('click') //trigger the button
+            wrapper.findAll('button').at(1).trigger('click') //trigger the button
             expect(dispatchMock).toHaveBeenCalledWith('increment') //Called the increment function on the Actions object
         })
 
@@ -98,14 +98,14 @@ describe("Counter.vue", () => {
         it("check increase and decrease functionality together", async() => {
             const wrapper = mountComponent()
 
-            wrapper.find('#increase').trigger('click') //1.increase
-            wrapper.find('#increase').trigger('click') //2.increase
-            wrapper.find('#decrease').trigger('click') //1.decrease
+            wrapper.findAll('button').filter(n => n.text().match('Increase')).trigger('click') //1.increase
+            wrapper.findAll('button').filter(n => n.text().match('Increase')).trigger('click') //2.increase
+            wrapper.findAll('button').filter(n => n.text().match('Decrease')).trigger('click') //1.decrease
             await wrapper.vm.$nextTick() //Waits for the DOM to update.
 
             let expectedCount = wrapper.vm.$store.state.count //take the count value on the real store.
 
-            //expect(expectedCount).toEqual(1);
+            //expect(expectedCount).toEqual(1); //another way
             expect(wrapper.find('span').text()).toEqual(expectedCount + "k") //span element's text should be equal to "countk"
 
         })

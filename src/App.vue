@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="app">
-      <h1 id="title">Daily Corona Cases in Turkey</h1>
+      <h1>Daily Corona Cases in Turkey</h1>
       <div
           class="notificationArea"
           :class="{
